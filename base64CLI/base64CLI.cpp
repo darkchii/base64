@@ -2,8 +2,6 @@
 #include "base64/base64lib.h"
 #include <iostream>
 
-#pragma comment(lib, "base64.lib")
-
 using namespace cli;
 
 int main(int argc, char**argv)
@@ -23,7 +21,7 @@ int main(int argc, char**argv)
 			if (!strcmp(argv[i], "-e") || !strcmp(argv[i], "--encode"))
 			{
 				++i;
-				if (!strcmp(argv[i], "--thread"))
+				if (!strcmp(argv[++i], "--thread"))
 					std::cout << Base64::encode(argv[i - 1], true, std::size_t(argv[++i])) << std::endl;
 				else
 					std::cout << Base64::encode(argv[i - 1], false, 1) << std::endl;
@@ -31,7 +29,7 @@ int main(int argc, char**argv)
 			else if (!strcmp(argv[i], "-d") || !strcmp(argv[i], "--decode"))
 			{
 				++i;
-				if (!strcmp(argv[i], "--thread"))
+				if (!strcmp(argv[++i], "--thread"))
 					std::cout << Base64::decode(argv[i - 1], true, std::size_t(argv[++i])) << std::endl;
 				else
 					std::cout << Base64::decode(argv[i - 1], false, 1) << std::endl;

@@ -20,7 +20,7 @@ void cli::GroupsEncode(
 			for (unsigned k = 0; k < 2 * i; k++)
 				inx += prev[k] << (5 - k);
 		}
-		assert(inx < 64);
+		assert(inx < 65);
 		trans_data += cli::base64keys[inx];
 		for (unsigned k = 0; k < 2 * (i + 1); k++)
 			prev[2 * i - k + 1] = pre_bit[k];
@@ -29,7 +29,7 @@ void cli::GroupsEncode(
 		unsigned inx = 0u;
 		for (unsigned k = 0; k < 2 * i; k++)
 			inx += prev[k] << (5 - k);
-		assert(inx < 64);
+		assert(inx < 65);
 		trans_data += cli::base64keys[inx];
 		while (i < 3) trans_data += '=', i++;
 	}
@@ -69,7 +69,7 @@ void cli::GroupsDecode(
 	keep_order.push(std::move(data));
 }
 
-std::string & cli::Base64::encode(const char * cpstr, bool isopen, std::size_t threads_num)
+std::string & cli::Base64::encode(const char * cpstr, bool is_open, std::size_t threads_num)
 {
 	std::priority_queue<std::pair<unsigned, std::string>, std::vector<std::pair<unsigned, std::string>>, cli::cmp> keep_order;
 	std::queue<std::pair<unsigned, std::string>> que;
@@ -94,19 +94,24 @@ std::string & cli::Base64::encode(const char * cpstr, bool isopen, std::size_t t
 			{
 				std::pair<unsigned, std::string> data(que.front().first, que.front().second);
 				que.pop();
-				if (!isopen) GroupsEncode(data, keep_order);
-				else threads.push_back(std::thread(GroupsEncode, std::ref(data), std::ref(keep_order)));
+				if (is_open)
+					threads.push_back(std::thread(GroupsEncode, std::ref(data), std::ref(keep_order)));
+				else 
+					GroupsEncode(data, keep_order);
 			}
 		}
-		for (auto & thread : threads) thread.join();
-		threads.clear();
+		if (is_open)
+		{
+			for (auto & thread : threads) thread.join();
+			threads.clear();
+		}
 	}
 
 	while (!keep_order.empty()) bucket += keep_order.top().second, keep_order.pop();
 	return bucket;
 }
 
-std::string & cli::Base64::decode(const char * cpstr, bool isopen, std::size_t threads_num)
+std::string & cli::Base64::decode(const char * cpstr, bool is_open, std::size_t threads_num)
 {
 	std::priority_queue<std::pair<unsigned, std::string>, std::vector<std::pair<unsigned, std::string>>, cli::cmp> keep_order;
 	std::queue<std::pair<unsigned, std::string>> que;
@@ -131,12 +136,17 @@ std::string & cli::Base64::decode(const char * cpstr, bool isopen, std::size_t t
 			{
 				std::pair<unsigned, std::string> data(que.front().first, que.front().second);
 				que.pop();
-				if (!isopen) GroupsDecode(data, keep_order);
-				else threads.push_back(std::thread(GroupsDecode, std::ref(data), std::ref(keep_order)));
+				if (is_open)
+					threads.push_back(std::thread(GroupsDecode, std::ref(data), std::ref(keep_order)));
+				else
+					GroupsDecode(data, keep_order);
 			}
 		}
-		for (auto & thread : threads) thread.join();
-		threads.clear();
+		if (is_open)
+		{
+			for (auto & thread : threads) thread.join();
+			threads.clear();
+		}
 	}
 
 	while (!keep_order.empty()) bucket += keep_order.top().second, keep_order.pop();
