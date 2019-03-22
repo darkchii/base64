@@ -12,7 +12,7 @@
 
 namespace cli
 {
-	std::mutex m;
+	static std::mutex m;
 	const char base64keys[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 	class cmp
@@ -54,7 +54,7 @@ namespace cli
 	{
 	public:
 		Base64() {}
-		static std::string & encode(const char * cpstr, bool isopen = false, std::size_t threads_num = 1);
-		static std::string & decode(const char * cpstr, bool isopen = false, std::size_t threads_num = 1);
+		static std::string & encode(const char * cpstr, bool isopen, std::size_t threads_num);
+		static std::string & decode(const char * cpstr, bool isopen, std::size_t threads_num);
 	};
 }

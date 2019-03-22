@@ -166,11 +166,8 @@
   <ItemGroup>
     <ProjectReference Include="..\base64\base64.vcxproj">
       <Project>{81082824-58aa-4ece-b21a-990aeb13b59c}</Project>
-      <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="..\x64\Debug\base64.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

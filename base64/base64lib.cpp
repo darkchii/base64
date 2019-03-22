@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "base64lib.h"
 
 void cli::GroupsEncode(
@@ -68,13 +69,13 @@ void cli::GroupsDecode(
 	keep_order.push(std::move(data));
 }
 
-std::string & cli::Base64::encode(const char * cpstr, bool isopen = false, std::size_t threads_num = 1)
+std::string & cli::Base64::encode(const char * cpstr, bool isopen, std::size_t threads_num)
 {
 	std::priority_queue<std::pair<unsigned, std::string>, std::vector<std::pair<unsigned, std::string>>, cli::cmp> keep_order;
 	std::queue<std::pair<unsigned, std::string>> que;
 	std::vector<std::thread> threads;
 	std::pair<unsigned, std::string> p;
-	std::string bucket;
+	static std::string bucket;
 
 	for (unsigned w = 0u; *cpstr; w++)
 	{
@@ -105,13 +106,13 @@ std::string & cli::Base64::encode(const char * cpstr, bool isopen = false, std::
 	return bucket;
 }
 
-std::string & cli::Base64::decode(const char * cpstr, bool isopen = false, std::size_t threads_num = 1)
+std::string & cli::Base64::decode(const char * cpstr, bool isopen, std::size_t threads_num)
 {
 	std::priority_queue<std::pair<unsigned, std::string>, std::vector<std::pair<unsigned, std::string>>, cli::cmp> keep_order;
 	std::queue<std::pair<unsigned, std::string>> que;
 	std::vector<std::thread> threads;
 	std::pair<unsigned, std::string> p;
-	std::string bucket;
+	static std::string bucket;
 
 	for (unsigned w = 0u; *cpstr; w++)
 	{
