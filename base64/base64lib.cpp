@@ -1,11 +1,8 @@
 #include "pch.h"
 #include "base64lib.h"
 
-void cli::GroupsEncode(
-	std::pair<unsigned, std::string> data,
-	std::priority_queue<std::pair<unsigned, std::string>, std::vector<std::pair<unsigned, std::string>>, cli::cmp> & keep_order)
+void cli::GroupsEncode(pair_us data, prioque & keep_order)
 {
-	std::lock_guard<std::mutex> lock(cli::m);
 	std::string trans_data;
 	unsigned prev[6] = { 0u };
 	unsigned i = 0u;
@@ -21,7 +18,7 @@ void cli::GroupsEncode(
 				inx += prev[k] << (5 - k);
 		}
 		assert(inx < 65);
-		trans_data += cli::base64keys[inx];
+		trans_data += base64keys[inx];
 		for (unsigned k = 0; k < 2 * (i + 1); k++)
 			prev[2 * i - k + 1] = pre_bit[k];
 	}
@@ -30,19 +27,16 @@ void cli::GroupsEncode(
 		for (unsigned k = 0; k < 2 * i; k++)
 			inx += prev[k] << (5 - k);
 		assert(inx < 65);
-		trans_data += cli::base64keys[inx];
+		trans_data += base64keys[inx];
 		while (i < 3) trans_data += '=', i++;
 	}
 	data.second = trans_data;
 	keep_order.push(std::move(data));
 }
 
-void cli::GroupsDecode(
-	std::pair<unsigned, std::string> data,
-	std::priority_queue<std::pair<unsigned, std::string>, std::vector<std::pair<unsigned, std::string>>, cli::cmp> & keep_order)
+void cli::GroupsDecode(pair_us data, prioque & keep_order)
 {
-	std::lock_guard<std::mutex> lock(cli::m);
-	cli::Base64Table v;
+	Base64Table v;
 	std::string tran_data;
 	unsigned suffix_bit[6] = { 0u };
 
@@ -69,13 +63,13 @@ void cli::GroupsDecode(
 	keep_order.push(std::move(data));
 }
 
-std::string & cli::Base64::encode(const char * cpstr, bool is_open, std::size_t threads_num)
+std::string cli::Base64::encode(const char * cpstr, bool is_open, std::size_t threads_num)
 {
-	std::priority_queue<std::pair<unsigned, std::string>, std::vector<std::pair<unsigned, std::string>>, cli::cmp> keep_order;
-	std::queue<std::pair<unsigned, std::string>> que;
+	prioque keep_order;
+	std::queue<pair_us> que;
 	std::vector<std::thread> threads;
-	std::pair<unsigned, std::string> p;
-	static std::string bucket;
+	pair_us p;
+	std::string bucket;
 
 	for (unsigned w = 0u; *cpstr; w++)
 	{
@@ -92,7 +86,7 @@ std::string & cli::Base64::encode(const char * cpstr, bool is_open, std::size_t 
 		{
 			if (!que.empty())
 			{
-				std::pair<unsigned, std::string> data(que.front().first, que.front().second);
+				pair_us data(que.front().first, que.front().second);
 				que.pop();
 				if (is_open)
 					threads.push_back(std::thread(GroupsEncode, std::ref(data), std::ref(keep_order)));
@@ -111,13 +105,13 @@ std::string & cli::Base64::encode(const char * cpstr, bool is_open, std::size_t 
 	return bucket;
 }
 
-std::string & cli::Base64::decode(const char * cpstr, bool is_open, std::size_t threads_num)
+std::string cli::Base64::decode(const char * cpstr, bool is_open, std::size_t threads_num)
 {
-	std::priority_queue<std::pair<unsigned, std::string>, std::vector<std::pair<unsigned, std::string>>, cli::cmp> keep_order;
-	std::queue<std::pair<unsigned, std::string>> que;
+	prioque keep_order;
+	std::queue<pair_us> que;
 	std::vector<std::thread> threads;
-	std::pair<unsigned, std::string> p;
-	static std::string bucket;
+	pair_us p;
+	std::string bucket;
 
 	for (unsigned w = 0u; *cpstr; w++)
 	{
@@ -134,7 +128,7 @@ std::string & cli::Base64::decode(const char * cpstr, bool is_open, std::size_t 
 		{
 			if (!que.empty())
 			{
-				std::pair<unsigned, std::string> data(que.front().first, que.front().second);
+				pair_us data(que.front().first, que.front().second);
 				que.pop();
 				if (is_open)
 					threads.push_back(std::thread(GroupsDecode, std::ref(data), std::ref(keep_order)));

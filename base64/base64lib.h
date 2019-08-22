@@ -12,17 +12,20 @@
 
 namespace cli
 {
-	static std::mutex m;
 	const char base64keys[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+	using pair_us = std::pair<unsigned, std::string>;
 
 	class cmp
 	{
 	public:
-		bool operator()(const std::pair<unsigned, std::string> & l, const std::pair<unsigned, std::string> & r) const
+		bool operator()(const pair_us & l, const pair_us & r) const
 		{
 			return l.first > r.first;
 		}
 	};
+
+	using prioque = std::priority_queue<pair_us, std::vector<pair_us>, cmp>;
 
 	class Base64Table
 	{
@@ -45,16 +48,14 @@ namespace cli
 		}
 	};
 
-	void GroupsEncode(std::pair<unsigned, std::string>,
-		std::priority_queue<std::pair<unsigned, std::string>, std::vector<std::pair<unsigned, std::string>>, cmp> &);
-	void GroupsDecode(std::pair<unsigned, std::string>,
-		std::priority_queue<std::pair<unsigned, std::string>, std::vector<std::pair<unsigned, std::string>>, cmp> &);
+	void GroupsEncode(pair_us, prioque &);
+	void GroupsDecode(pair_us, prioque &);
 
 	class Base64
 	{
 	public:
 		Base64() {}
-		static std::string & encode(const char * cpstr, bool isopen, std::size_t threads_num);
-		static std::string & decode(const char * cpstr, bool isopen, std::size_t threads_num);
+		static std::string encode(const char * cpstr, bool isopen, std::size_t threads_num);
+		static std::string decode(const char * cpstr, bool isopen, std::size_t threads_num);
 	};
 }

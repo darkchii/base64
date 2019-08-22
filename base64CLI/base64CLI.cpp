@@ -4,7 +4,7 @@
 
 using namespace cli;
 
-int main(int argc, char**argv)
+int main(int argc, char const*argv[])
 {
 	if (argc <= 1)
 	{
@@ -21,18 +21,18 @@ int main(int argc, char**argv)
 			if (!strcmp(argv[i], "-e") || !strcmp(argv[i], "--encode"))
 			{
 				++i;
-				if (!strcmp(argv[++i], "--thread"))
-					std::cout << Base64::encode(argv[i - 1], true, std::size_t(argv[++i])) << std::endl;
+				if (i + 1 < argc && !strcmp(argv[i + 1], "--thread"))
+					std::cout << Base64::encode(argv[i], true, std::size_t(argv[i + 2])) << std::endl;
 				else
-					std::cout << Base64::encode(argv[i - 1], false, 1) << std::endl;
+					std::cout << Base64::encode(argv[i], false, 1) << std::endl;
 			}
 			else if (!strcmp(argv[i], "-d") || !strcmp(argv[i], "--decode"))
 			{
 				++i;
-				if (!strcmp(argv[++i], "--thread"))
-					std::cout << Base64::decode(argv[i - 1], true, std::size_t(argv[++i])) << std::endl;
+				if (!strcmp(argv[i + 1], "--thread"))
+					std::cout << Base64::decode(argv[i], true, std::size_t(argv[i + 2])) << std::endl;
 				else
-					std::cout << Base64::decode(argv[i - 1], false, 1) << std::endl;
+					std::cout << Base64::decode(argv[i], false, 1) << std::endl;
 			}
 			i++;
 		}
