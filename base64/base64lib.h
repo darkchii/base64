@@ -14,6 +14,11 @@ namespace cli
 {
 	const char base64keys[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
+	enum CodecType {
+		E_ENCODE = 0x00,
+		E_DECODE = 0x01 //
+	};
+
 	using pair_us = std::pair<unsigned, std::string>;
 
 	class cmp
@@ -55,7 +60,7 @@ namespace cli
 	{
 	public:
 		Base64() {}
-		static std::string encode(const char * cpstr, bool isopen, std::size_t threads_num);
-		static std::string decode(const char * cpstr, bool isopen, std::size_t threads_num);
+		static std::string encode_or_decode(const char * cpstr, CodecType valueType, bool isopen, std::size_t threads_num);
+
 	};
 }

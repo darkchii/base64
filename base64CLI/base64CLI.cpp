@@ -8,10 +8,11 @@ int main(int argc, char const*argv[])
 {
 	if (argc <= 1)
 	{
-		std::cout << "Usage:" << std::endl;
-		std::cout << "	[-e | --encode] [text](encoding for input text)" << std::endl;
-		std::cout << "	[-d | --decode] [text](decoding for input text)" << std::endl;
-		std::cout << "	[--thread] [threads](open thread)" << std::endl;
+		std::cout << "Usage: base64CLI [Options]\n";
+		std::cout << "Options:\n";
+		std::cout << "	[-e | --encode](Encoding for input text)\n";
+		std::cout << "	[-d | --decode](Decoding for input text)\n";
+		std::cout << "	[--thread](Threads)" << std::endl;
 	}
 	else
 	{
@@ -22,17 +23,17 @@ int main(int argc, char const*argv[])
 			{
 				++i;
 				if (i + 1 < argc && !strcmp(argv[i + 1], "--thread"))
-					std::cout << Base64::encode(argv[i], true, std::size_t(argv[i + 2])) << std::endl;
+					std::cout << Base64::encode_or_decode(argv[i], E_ENCODE, true, std::size_t(argv[i + 2])) << std::endl;
 				else
-					std::cout << Base64::encode(argv[i], false, 1) << std::endl;
+					std::cout << Base64::encode_or_decode(argv[i], E_ENCODE, false, 1) << std::endl;
 			}
 			else if (!strcmp(argv[i], "-d") || !strcmp(argv[i], "--decode"))
 			{
 				++i;
 				if (!strcmp(argv[i + 1], "--thread"))
-					std::cout << Base64::decode(argv[i], true, std::size_t(argv[i + 2])) << std::endl;
+					std::cout << Base64::encode_or_decode(argv[i], E_DECODE, true, std::size_t(argv[i + 2])) << std::endl;
 				else
-					std::cout << Base64::decode(argv[i], false, 1) << std::endl;
+					std::cout << Base64::encode_or_decode(argv[i], E_DECODE, false, 1) << std::endl;
 			}
 			i++;
 		}

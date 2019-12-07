@@ -63,7 +63,7 @@ void cli::GroupsDecode(pair_us data, prioque & keep_order)
 	keep_order.push(std::move(data));
 }
 
-std::string cli::Base64::encode(const char * cpstr, bool is_open, std::size_t threads_num)
+std::string cli::Base64::encode_or_decode(const char * cpstr, CodecType valueType, bool is_open, std::size_t threads_num)
 {
 	prioque keep_order;
 	std::queue<pair_us> que;
@@ -74,7 +74,7 @@ std::string cli::Base64::encode(const char * cpstr, bool is_open, std::size_t th
 	for (unsigned w = 0u; *cpstr; w++)
 	{
 		p.second.clear();
-		for (unsigned i = 0u; i < 3 && *cpstr; i++, cpstr++)
+		for (unsigned i = 0u; i < (3 + (valueType & 1)) && *cpstr; i++, cpstr++)
 			p.second += *cpstr;
 		p.first = w;
 		que.push(p);
@@ -89,51 +89,19 @@ std::string cli::Base64::encode(const char * cpstr, bool is_open, std::size_t th
 				pair_us data(que.front().first, que.front().second);
 				que.pop();
 				if (is_open)
-					threads.push_back(std::thread(GroupsEncode, std::ref(data), std::ref(keep_order)));
-				else 
-					GroupsEncode(data, keep_order);
-			}
-		}
-		if (is_open)
-		{
-			for (auto & thread : threads) thread.join();
-			threads.clear();
-		}
-	}
-
-	while (!keep_order.empty()) bucket += keep_order.top().second, keep_order.pop();
-	return bucket;
-}
-
-std::string cli::Base64::decode(const char * cpstr, bool is_open, std::size_t threads_num)
-{
-	prioque keep_order;
-	std::queue<pair_us> que;
-	std::vector<std::thread> threads;
-	pair_us p;
-	std::string bucket;
-
-	for (unsigned w = 0u; *cpstr; w++)
-	{
-		p.second.clear();
-		for (unsigned i = 0u; i < 4 && *cpstr; i++, cpstr++)
-			p.second += *cpstr;
-		p.first = w;
-		que.push(p);
-	}
-
-	while (!que.empty())
-	{
-		for (unsigned i = 0; i < threads_num; i++)
-		{
-			if (!que.empty())
-			{
-				pair_us data(que.front().first, que.front().second);
-				que.pop();
-				if (is_open)
-					threads.push_back(std::thread(GroupsDecode, std::ref(data), std::ref(keep_order)));
+				{
+					if (valueType == E_ENCODE)
+						threads.push_back(std::thread(GroupsEncode, std::ref(data), std::ref(keep_order)));
+					else
+						threads.push_back(std::thread(GroupsDecode, std::ref(data), std::ref(keep_order)));
+				}
 				else
-					GroupsDecode(data, keep_order);
+				{
+					if (valueType == E_ENCODE)
+						GroupsEncode(data, keep_order);
+					else
+						GroupsDecode(data, keep_order);
+				}
 			}
 		}
 		if (is_open)
